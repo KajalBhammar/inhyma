@@ -35,8 +35,17 @@ const USE_BLOB = Boolean(BLOB_TOKEN);
 const MAX_MB = parseInt(process.env.MAX_UPLOAD_MB || '8', 10);
 const IMAGE_MIME = /^image\/(jpe?g|png|gif|webp|svg\+xml|avif)$/;
 
+// Returns false rather than throwing: uploader() is called while routes are
+// being registered, so on a read-only serverless filesystem an exception here
+// would abort the require and take the whole site down — not just uploads.
 function ensureDir(dir) {
-  fs.mkdirSync(dir, { recursive: true });
+  try {
+    fs.mkdirSync(dir, { recursive: true });
+    return true;
+  } catch (err) {
+    console.warn(`⚠ Upload dir ${dir} is not writable: ${err.message}`);
+    return false;
+  }
 }
 
 function fileFilter(req, file, cb) {
@@ -63,11 +72,17 @@ function isUrl(v) {
 
 function diskUploader(subfolder) {
   const dest = path.join(UPLOAD_ROOT, subfolder);
-  ensureDir(dest);
 
   return multer({
     storage: multer.diskStorage({
-      destination: (req, file, cb) => cb(null, dest),
+      // Created on first actual upload rather than at registration time, so a
+      // read-only FS surfaces as a failed upload instead of a failed boot.
+      destination: (req, file, cb) => {
+        if (!ensureDir(dest)) {
+          return cb(new Error('File uploads are not available — no blob storage is configured.'));
+        }
+        cb(null, dest);
+      },
       filename: (req, file, cb) => cb(null, safeName(file.originalname)),
     }),
     limits: { fileSize: MAX_MB * 1024 * 1024 },

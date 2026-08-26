@@ -164,15 +164,14 @@ function startServer(port, attempt = 0) {
 }
 
 /* ------------------------------------------------------------
-   On Vercel the platform owns the HTTP server — api/index.js just
-   hands it this app. Binding a port there would fail, and the
-   pre-warm below would run on every cold start, adding four blocking
-   round-trips to the first request it was meant to speed up. Both are
-   therefore long-lived-server-only.
+   Vercel runs this file as a Node server and routes traffic to
+   whatever port we bind, so listen() is unconditional. Only the
+   pre-warm stays local-only: on Vercel it would add four blocking
+   round-trips to the very first request it was meant to speed up.
    ------------------------------------------------------------ */
-if (!ON_VERCEL) {
-  startServer(PORT);
+startServer(PORT);
 
+if (!ON_VERCEL) {
   // Pre-warm DB pool + caches on startup so first request is instant
   (async () => {
     try {
