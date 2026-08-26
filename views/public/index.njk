@@ -1,0 +1,274 @@
+{% extends "layout.njk" %}
+{% from "public/_macros.njk" import productCard %}
+
+{% block content %}
+<!-- HERO -->
+<section class="hero" id="hero">
+  <div class="hero__bg">
+    <div class="hero-slider">
+      <img src="/assets/hero-bg.png" alt="Modern automated packaging factory" loading="eager">
+      <img src="https://images.unsplash.com/photo-1565891741441-64926e441838?auto=format&fit=crop&w=2000&q=80" alt="Cardboard box packaging line" loading="lazy">
+      <img src="https://images.unsplash.com/photo-1530124566582-a618bc2615dc?auto=format&fit=crop&w=2000&q=80" alt="Industrial machinery and automation" loading="lazy">
+      <img src="https://images.unsplash.com/photo-1587293852726-70cdb56c2866?auto=format&fit=crop&w=2000&q=80" alt="Warehouse logistics and packaging" loading="lazy">
+      <!-- Duplicate first image for seamless loop -->
+      <img src="/assets/hero-bg.png" alt="Modern automated packaging factory" loading="lazy">
+    </div>
+  </div>
+  <style>
+    .hero__bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+    .hero-slider {
+      display: flex;
+      width: 500vw;
+      height: 100%;
+      animation: hero-scroll 30s infinite;
+    }
+    .hero-slider img {
+      width: 100vw;
+      height: 100%;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    @keyframes hero-scroll {
+      0%, 17% { transform: translateX(0); }
+      21%, 38% { transform: translateX(-100vw); }
+      42%, 59% { transform: translateX(-200vw); }
+      63%, 80% { transform: translateX(-300vw); }
+      95%, 100% { transform: translateX(-400vw); }
+    }
+  </style>
+  <div class="container">
+    <div class="hero__content">
+      <div class="hero__badge"><span class="hero__badge-dot"></span> {{ settings.tagline }}</div>
+      <h1 class="hero__title">{{ settings.hero_title }}</h1>
+      <p class="hero__subtitle">{{ settings.hero_subtitle }}</p>
+      <div class="hero__cta">
+        <a href="/products" class="btn btn--primary btn--lg">Explore Products</a>
+        <a href="/request-quote" class="btn btn--outline-white btn--lg">Request a Quote</a>
+      </div>
+
+      {% if stats.length %}
+      <div class="hero__stats">
+        {% for s in stats %}
+        <div class="hero__stat">
+          <div class="hero__stat-value">
+            <span data-count="{{ s.Value }}" class="counter">0</span><span>{{ s.Suffix }}</span>
+          </div>
+          <div class="hero__stat-label">{{ s.Label }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<!-- CATEGORIES -->
+<section class="section">
+  <div class="container">
+    <div class="section-header text-center"><span class="section-label">What We Offer</span><h2 class="section-title">Our Product Categories</h2></div>
+    <div class="category-grid" style="display:flex;flex-wrap:wrap;justify-content:center;gap:var(--space-6);margin-top:var(--space-8);">
+      {% for c in categories %}
+        {% if c.ShowOnHome %}
+        <a href="/products?category={{ c.Slug }}" class="category-card reveal" style="flex: 0 1 320px; max-width: 100%;">
+          <div class="category-card__image" style="background: white; padding: var(--space-4);">
+            {% if c.ImagePath %}<img src="{{ c.ImagePath }}" alt="{{ c.Name }}" loading="lazy" style="width:100%;height:100%;object-fit:contain;mix-blend-mode:multiply;">
+            {% else %}<div class="category-card__image-placeholder" style="height:100%;"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 12h18"/></svg></div>{% endif %}
+          </div>
+          <div class="category-card__body" style="padding:var(--space-5);">
+            <h3 class="category-card__title">{{ c.Name }}</h3>
+            <p style="color:var(--color-gray-500);font-size:var(--fs-sm);">{{ c.Description | truncate(80) }}</p>
+            <span style="color:var(--color-primary);font-weight:600;">{{ c.ProductCount }} products →</span>
+          </div>
+        </a>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- FEATURED PRODUCTS -->
+{% if featured.length %}
+<section class="section section--alt">
+  <div class="container">
+    <div class="section-header text-center"><span class="section-label">Best Sellers</span><h2 class="section-title">Featured Products</h2></div>
+    <div class="product-grid" style="margin-top:var(--space-8);">
+      {% for p in featured %}{{ productCard(p) }}{% endfor %}
+    </div>
+    <div class="text-center" style="margin-top:var(--space-8);"><a href="/products" class="btn btn--primary btn--lg">View All Products</a></div>
+  </div>
+</section>
+{% endif %}
+
+<!-- INDUSTRIES -->
+{% if industries.length %}
+<section class="section section--alt">
+  <div class="container">
+    <div class="section-header text-center"><span class="section-label">Industries</span><h2 class="section-title">Industries We Serve</h2></div>
+    <div class="industry-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px, 100%), 1fr));gap:var(--space-6);margin-top:var(--space-8);">
+      {% for i in industries %}
+      <a href="/industries/{{ i.Slug }}" class="industry-card reveal">
+        <div class="industry-card__bg">
+          <img src="{{ i.ImagePath }}" alt="{{ i.Name }}" loading="lazy">
+        </div>
+        <div class="industry-card__overlay"></div>
+        <div class="industry-card__content">
+          <div class="industry-card__icon">{{ i.IconEmoji }}</div>
+          <h3 class="industry-card__title">{{ i.Name }}</h3>
+          <p class="industry-card__desc">{{ i.ShortDescription }}</p>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- GLOBAL REACH — Light Premium Redesign -->
+<section class="section global-reach-section" id="global-reach" style="background: var(--color-white); border-top: 1px solid var(--color-gray-100); position: relative; overflow: hidden; padding: var(--space-20) 0;">
+  <div class="gr-bg-grid" style="position: absolute; inset: 0; pointer-events: none; opacity: 0.3; background-image: radial-gradient(var(--color-gray-200) 1px, transparent 1px); background-size: 24px 24px;"></div>
+  
+  <div class="container" style="position: relative; z-index: 2;">
+    <div class="section-header text-center">
+      <span class="section-label">Global Presence</span>
+      <h2 class="section-title">Globally Connected, Locally Delivered</h2>
+      <p class="section-subtitle" style="max-width: 650px; margin: 0 auto var(--space-8); color: var(--color-gray-500); font-size: var(--fs-base); line-height: var(--lh-relaxed);">
+        Empowering industries across borders with dedicated offices, warehouses, and a seamless supply chain network.
+      </p>
+    </div>
+
+    <!-- Professional Stats Counter Grid -->
+    <div class="gr-stats-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-4); margin-bottom: var(--space-10); text-align: center;">
+      <div class="gr-stat-item" style="padding: var(--space-5); background: var(--color-gray-50); border-radius: var(--radius-md); border: 1px solid var(--color-gray-100); transition: transform 0.3s ease;">
+        <div class="gr-stat-value" style="font-size: var(--fs-3xl); font-weight: var(--fw-extrabold); color: var(--color-primary); font-family: var(--font-display);">7</div>
+        <div class="gr-stat-label" style="font-size: var(--fs-xs); color: var(--color-gray-500); text-transform: uppercase; letter-spacing: var(--ls-wider); font-weight: var(--fw-semibold); margin-top: var(--space-1);">Countries Served</div>
+      </div>
+      <div class="gr-stat-item" style="padding: var(--space-5); background: var(--color-gray-50); border-radius: var(--radius-md); border: 1px solid var(--color-gray-100); transition: transform 0.3s ease;">
+        <div class="gr-stat-value" style="font-size: var(--fs-3xl); font-weight: var(--fw-extrabold); color: var(--color-primary); font-family: var(--font-display);">3</div>
+        <div class="gr-stat-label" style="font-size: var(--fs-xs); color: var(--color-gray-500); text-transform: uppercase; letter-spacing: var(--ls-wider); font-weight: var(--fw-semibold); margin-top: var(--space-1);">Continents</div>
+      </div>
+      <div class="gr-stat-item" style="padding: var(--space-5); background: var(--color-gray-50); border-radius: var(--radius-md); border: 1px solid var(--color-gray-100); transition: transform 0.3s ease;">
+        <div class="gr-stat-value" style="font-size: var(--fs-3xl); font-weight: var(--fw-extrabold); color: var(--color-primary); font-family: var(--font-display);">14+</div>
+        <div class="gr-stat-label" style="font-size: var(--fs-xs); color: var(--color-gray-500); text-transform: uppercase; letter-spacing: var(--ls-wider); font-weight: var(--fw-semibold); margin-top: var(--space-1);">Facilities & Hubs</div>
+      </div>
+      <div class="gr-stat-item" style="padding: var(--space-5); background: var(--color-gray-50); border-radius: var(--radius-md); border: 1px solid var(--color-gray-100); transition: transform 0.3s ease;">
+        <div class="gr-stat-value" style="font-size: var(--fs-3xl); font-weight: var(--fw-extrabold); color: var(--color-primary); font-family: var(--font-display);">24/7</div>
+        <div class="gr-stat-label" style="font-size: var(--fs-xs); color: var(--color-gray-500); text-transform: uppercase; letter-spacing: var(--ls-wider); font-weight: var(--fw-semibold); margin-top: var(--space-1);">Support & Logistics</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUSTED LOGOS -->
+<section class="section" style="padding: var(--space-12) 0; border-top: 1px solid var(--color-gray-100); background: var(--color-white);">
+  <div class="container">
+    <div class="section-header text-center" style="margin-bottom: var(--space-8);">
+      <h2 class="section-title" style="font-size: var(--fs-2xl); color: var(--color-primary);">Trusted by Leading Industries Worldwide</h2>
+    </div>
+    
+    <div class="trusted-logos-marquee" style="overflow: hidden; width: 100%; padding: var(--space-4) 0; position: relative;">
+      <div class="trusted-logos-track marquee-scroll" style="display: flex; align-items: center; gap: var(--space-8); width: max-content;">
+        {% for logo in clientLogos %}
+        <div class="trusted-logo-item" style="flex: 0 0 auto; margin: 0 var(--space-6);">
+          {% if logo.ImagePath %}
+          <img src="{{ logo.ImagePath }}" alt="{{ logo.Name }}" style="max-height: 45px; max-width: 140px; object-fit: contain;">
+          {% else %}
+          <span style="font-weight: 700; font-size: 1.25rem; color: var(--color-gray-500);">{{ logo.Name }}</span>
+          {% endif %}
+        </div>
+        {% endfor %}
+        <!-- Duplicate for continuous scroll effect -->
+        {% for logo in clientLogos %}
+        <div class="trusted-logo-item" style="flex: 0 0 auto; margin: 0 var(--space-6);" aria-hidden="true">
+          {% if logo.ImagePath %}
+          <img src="{{ logo.ImagePath }}" alt="{{ logo.Name }}" style="max-height: 45px; max-width: 140px; object-fit: contain;">
+          {% else %}
+          <span style="font-weight: 700; font-size: 1.25rem; color: var(--color-gray-500);">{{ logo.Name }}</span>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BLOG -->
+{% if blogs.length %}
+<section class="section section--alt">
+  <div class="container">
+    <div class="section-header text-center"><span class="section-label">Knowledge Center</span><h2 class="section-title">Latest Insights</h2></div>
+    <div class="blog-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px, 100%), 1fr));gap:var(--space-6);margin-top:var(--space-8);">
+      {% for b in blogs %}
+      <a href="/blog/{{ b.Slug }}" class="blog-card reveal">
+        <div class="blog-card__image">{% if b.ImagePath %}<img src="{{ b.ImagePath }}" alt="{{ b.Title }}" loading="lazy" style="width:100%;height:100%;object-fit:cover;">{% else %}<div class="category-card__image-placeholder" style="height:100%;font-size:2rem;">{{ b.IconEmoji or '📦' }}</div>{% endif %}</div>
+        <div class="blog-card__body"><span class="blog-card__tag">{{ b.Tag }}</span><h3 class="blog-card__title">{{ b.Title }}</h3><p class="blog-card__excerpt">{{ b.Excerpt | truncate(110) }}</p><div class="blog-card__meta"><span>{{ b.PublishedDate | date }}</span><span>•</span><span>{{ b.ReadTime }}</span></div></div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- TESTIMONIALS -->
+{% if testimonials.length %}
+<section class="section" style="overflow: hidden;">
+  <div class="container">
+    <div class="section-header text-center">
+      <span class="section-label">Testimonials</span>
+      <h2 class="section-title">What Our Clients Say</h2>
+    </div>
+  </div>
+  <div class="testimonials-marquee reveal">
+    <div class="testimonials-marquee__track">
+      <div class="testimonials-marquee__group">
+        {% for t in testimonials %}
+        <div class="testimonial-card">
+          <div class="testimonial-card__stars">
+            {% for i in range(0, t.Rating) %}★{% endfor %}{% for i in range(t.Rating, 5) %}☆{% endfor %}
+          </div>
+          <p class="testimonial-card__text">"{{ t.Content }}"</p>
+          <div class="testimonial-card__author">
+            <div class="testimonial-card__avatar">{{ t.Initials or (t.AuthorName | truncate(2, true, '')) }}</div>
+            <div>
+              <div class="testimonial-card__name">{{ t.AuthorName }}</div>
+              <div class="testimonial-card__role">{{ t.AuthorRole }}</div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="testimonials-marquee__group" aria-hidden="true">
+        {% for t in testimonials %}
+        <div class="testimonial-card">
+          <div class="testimonial-card__stars">
+            {% for i in range(0, t.Rating) %}★{% endfor %}{% for i in range(t.Rating, 5) %}☆{% endfor %}
+          </div>
+          <p class="testimonial-card__text">"{{ t.Content }}"</p>
+          <div class="testimonial-card__author">
+            <div class="testimonial-card__avatar">{{ t.Initials or (t.AuthorName | truncate(2, true, '')) }}</div>
+            <div>
+              <div class="testimonial-card__name">{{ t.AuthorName }}</div>
+              <div class="testimonial-card__role">{{ t.AuthorRole }}</div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- CTA -->
+<section class="section section--primary"><div class="container text-center">
+  <h2 class="section-title" style="color:var(--color-white);">Ready to Automate Your Business?</h2>
+  <p style="color:rgba(255,255,255,0.7);max-width:560px;margin:0 auto var(--space-8);">Let our experts design a tailored solution that maximizes your ROI.</p>
+  <div class="btn-group" style="justify-content:center;"><a href="/request-quote" class="btn btn--primary btn--lg">Request a Quote</a><a href="/contact" class="btn btn--outline-white btn--lg">Contact Us</a></div>
+</div></section>
+{% endblock %}

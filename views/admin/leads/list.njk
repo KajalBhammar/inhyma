@@ -1,0 +1,84 @@
+{% extends "admin/layout.njk" %}
+{% from "admin/_macros.njk" import delBtn, pagination %}
+{% from "admin/_icons.njk" import icon %}
+{% block content %}
+
+<div class="card">
+  <div class="card__header"><h2>CRM Leads</h2></div>
+  <form class="admin-filters admin-filters--crm" method="get" action="/admin/leads">
+    <div class="admin-filter__field admin-filter__field--search">
+      <label for="leadFilterSearch">Lead or contact</label>
+      <input id="leadFilterSearch" type="search" name="q" value="{{ search }}" placeholder="Name, company, phone, email...">
+    </div>
+    <div class="admin-filter__field">
+      <label for="leadFilterStatus">Status</label>
+      <select id="leadFilterStatus" name="status">
+        <option value="">All statuses</option>
+        <option value="new" {{ 'selected' if status == 'new' }}>New</option>
+        <option value="contacted" {{ 'selected' if status == 'contacted' }}>Contacted</option>
+        <option value="quoted" {{ 'selected' if status == 'quoted' }}>Quoted</option>
+        <option value="closed" {{ 'selected' if status == 'closed' }}>Closed</option>
+        <option value="lost" {{ 'selected' if status == 'lost' }}>Lost</option>
+      </select>
+    </div>
+    <div class="admin-filter__field">
+      <label for="leadFilterSource">Source</label>
+      <select id="leadFilterSource" name="source">
+        <option value="">All sources</option>
+        {% for sourceOption in sources %}<option value="{{ sourceOption }}" {{ 'selected' if source == sourceOption }}>{{ sourceOption | title }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="admin-filter__field">
+      <label for="leadFilterFrom">Created from</label>
+      <input id="leadFilterFrom" type="date" name="dateFrom" value="{{ dateFrom }}">
+    </div>
+    <div class="admin-filter__field">
+      <label for="leadFilterTo">Created to</label>
+      <input id="leadFilterTo" type="date" name="dateTo" value="{{ dateTo }}">
+    </div>
+    <div class="admin-filter__actions">
+      <button class="btn btn-primary" type="submit">Apply filters</button>
+      {% if hasFilters %}<a class="btn btn-outline" href="/admin/leads">Clear</a>{% endif %}
+      <a class="btn btn-outline" href="/admin/leads/export{% if filterQuery %}?{{ filterQuery }}{% endif %}">Export Excel</a>
+    </div>
+  </form>
+  <div class="admin-filter__summary"><strong>{{ totalLeads }}</strong> matching lead{{ '' if totalLeads == 1 else 's' }}{% if hasFilters %} from {{ allLeadCount }} total{% endif %}</div>
+
+  {% if items.length %}
+  <div class="table-wrap">
+  <table class="data">
+    <thead><tr><th>Name</th><th>Contact</th><th>Source</th><th>Requirement</th><th>Status</th><th>Next Reminder</th><th>Date</th><th></th></tr></thead>
+    <tbody>
+      {% for l in items %}
+      <tr style="cursor:pointer;" onclick="if(event.target.tagName!=='A'&&event.target.tagName!=='BUTTON')location.href='/admin/leads/{{ l.LeadId }}'">
+        <td>
+          <div style="display:flex;align-items:center;gap:11px;">
+            <span class="avatar" style="width:34px;height:34px;font-size:13px;">{{ l.Name[0] | upper }}</span>
+            <div><strong>{{ l.Name }}</strong>{% if l.Company %}<br><span class="muted">{{ l.Company }}</span>{% endif %}</div>
+          </div>
+        </td>
+        <td>{{ l.Mobile or '—' }}<br><span class="muted">{{ l.Email or '' }}</span></td>
+        <td><span class="pill pill--gray pill--plain">{{ l.Source }}</span></td>
+        <td>{{ l.ProductRequirement or '—' }}</td>
+        <td><span class="pill {{ 'pill--new' if l.Status == 'new' else ('pill--on' if l.Status in ['quoted','closed'] else 'pill--gray') }}">{{ l.Status }}</span></td>
+        <td>
+          {% if l.NextReminderDate %}
+          <span style="display:inline-flex;align-items:center;gap:4px;background:#fff7ed;color:#ea580c;border:1px solid #fed7aa;padding:4px 8px;border-radius:4px;font-size:11px;font-weight:600;">
+            🗓️ {{ l.NextReminderDate | date }}
+          </span>
+          {% else %}
+          <span class="muted" style="font-size:12px;">—</span>
+          {% endif %}
+        </td>
+        <td class="muted">{{ l.CreatedAt | date }}</td>
+        <td><div class="row-actions"><a class="btn btn-outline btn-sm" href="/admin/leads/{{ l.LeadId }}">View</a>{{ delBtn('/admin/leads/' + (l.LeadId|string) + '/delete', 'lead') }}</div></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {{ pagination(currentPage, totalPages, '/admin/leads', null, filterQuery) }}
+  {% elseif hasFilters %}<div class="empty">{{ icon('leads') }}<div>No leads match these filters. <a href="/admin/leads">Clear filters</a>.</div></div>
+  {% else %}<div class="empty">{{ icon('leads') }}<div>No leads yet.</div></div>{% endif %}
+</div>
+{% endblock %}

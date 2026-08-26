@@ -1,0 +1,30 @@
+# Anything listed here is never uploaded to Vercel.
+# Keep this tight — the deployment upload and the function bundle both
+# get slower with every megabyte that has no runtime purpose.
+
+node_modules
+.env
+.env.*
+*.log
+npm-debug.log*
+
+# 90MB source geometry. Only src/scripts/process-geo.js reads it, and
+# that runs offline; the site serves the pre-built public/data/*.json.
+World_geo.json
+
+# Database artefacts — schema, procedures, seed data, dumps. Applied to
+# the managed MySQL instance by hand, never read by the running app.
+sql
+mysql
+defaultdb.sql
+
+# One-off import fixtures for src/scripts/import-inhyma.js
+data
+
+# IIS config, superseded by vercel.json
+web.config
+
+# Scratch
+New folder
+README.md
+.DS_Store
